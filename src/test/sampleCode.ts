@@ -45,12 +45,22 @@ class CommentForm extends GestureEventListeners(PolymerElement) {
       return 'comment-form';
   }
 
-  // polyProp
+  // @polyProp
   author_email!: string;
-  // polyProp
+  // @polyProp
   postId!: number;
-  // polyProp {value: () => { return []; }, notify: true, observer: "_commentsChanged"}
+  // @polyProp {value: () => { return []; }, notify: true, observer: "_commentsChanged"}
   _commentsForPost!: Icomment[];
+  nonPolymerProperty: string;
+  /**
+   * a very special property
+   * @polyProp
+   */
+  verySpecial: Ispecial;
+  /**
+   * @polyProp {notify:true, value: {}}
+   */
+  somewhatSpecial: any;
 
   static get properties() {
       return {
@@ -75,7 +85,10 @@ class CommentForm extends GestureEventListeners(PolymerElement) {
               notify: true
           },
           _isValid: Boolean,
-          // @type {Icomment[]}
+          /**
+           * Array of comments for displayed post
+           * @type {Icomment[]}
+           */
           _commentsForPost: {
               type: Array,
               value: () => {

@@ -27,6 +27,9 @@ class SomeElement extends PolymerElement {
               value: "",
               notify: true
           },
+          /**
+           * message shown after a comment is successfully saved
+           */
           _successMessage: {
               type: String,
               value: "",
@@ -50,21 +53,24 @@ class SomeElement extends PolymerElement {
 class SomeElement extends PolymerElement {
     
   aBasicTsPropNotNeededByPolymer: string;
-  // polyProp
+  // @polyProp
   author_email!: string;
-  // polyProp
+  // @polyProp
   author_name!: string;
-  // polyProp
+  // @polyProp
   comment_text!: string;
-  // polyProp {value: () => { return []; }, notify: true, observer: "_commentsChanged"}
+  // @polyProp {value: () => { return []; }, notify: true, observer: "_commentsChanged"}
   _commentsForPost!: Icomment[];
-  // polyProp { value: "", notify: true }
+  // @polyProp { value: "", notify: true }
   _error_message!: string;
-  // polyProp
-  _isValid: boolean;
-  // polyProp { value: 0, notify: true, observer: "_postIdObserver" }
+  // @polyProp
+  _isValid!: boolean;
+  // @polyProp { value: 0, notify: true, observer: "_postIdObserver" }
   postId!: number;
-  // polyProp { value: "", notify: true }
+  /**
+   * message shown after a comment is successfully saved
+   * @polyProp { value: "", notify: true }
+   */
   _success_message!: string;
   
   static get properties() {
@@ -83,6 +89,9 @@ class SomeElement extends PolymerElement {
               value: "",
               notify: true
           },
+          /**
+           * message shown after a comment is successfully saved
+           */
           _successMessage: {
               type: String,
               value: "",
