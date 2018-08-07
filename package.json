@@ -2,8 +2,8 @@
     "name": "polymertsprops",
     "displayName": "PolymerTsProps",
     "description": "Insert Typescript properties matching Polymer static get properties",
-    "version": "0.0.1",
-    "publisher": "bigmurr",
+    "version": "0.1.0",
+    "publisher": "Murray Lisook",
     "engines": {
         "vscode": "^1.25.0"
     },
@@ -12,7 +12,8 @@
     ],
     "activationEvents": [
         "onCommand:extension.updatePolymerProps",
-        "onCommand:extension.updateTsProps"
+        "onCommand:extension.updateTsProps",
+        "onCommand:extension.updateElementAccessor"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -24,6 +25,10 @@
             {
                 "command": "extension.updatePolymerProps",
                 "title": "Update Polymer static get properties() block from TS class properties"
+            },
+            {
+                "command": "extension.updateElementAccessor",
+                "title": "Update Polymer '$' element access property"
             }
         ]
     },
@@ -42,5 +47,6 @@
         "tslint": "^5.8.0",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
-    }
+    },
+    "license": "MIT"
 }

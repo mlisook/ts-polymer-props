@@ -13,9 +13,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     let disposable_updateTsProps = vscode.commands.registerCommand('extension.updateTsProps', () => { ptp.updateTsProps(); });
     let disposable_updatePolymerProps = vscode.commands.registerCommand('extension.updatePolymerProps', () => { ptp.updatePolymerProps(); });
+    let disposable_updateElementAccessor = vscode.commands.registerCommand('extension.updateElementAccessor', () => { ptp.updateElementAccessor(); });
 
     context.subscriptions.push(disposable_updateTsProps);
     context.subscriptions.push(disposable_updatePolymerProps);
+    context.subscriptions.push(disposable_updateElementAccessor);
 }
 
 // this method is called when your extension is deactivated
@@ -176,6 +178,81 @@ export class PolymerTsProps {
             let newProps: string = this._generatePolymerPropDecs(bld);
             this._performDocumentUpdates(editor, bld, newProps, insertionPoint);
             vscode.window.showInformationMessage(`${bld.length} TS properties added/updated as Polymer properties.`);
+        }
+    }
+
+    /**
+     * Inserts or updates the polymer $ convenience property
+     * that allows easy access to the elements in the template
+     * which have an ID
+     */
+    updateElementAccessor(): void {
+        let editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage(`There is no open editor.`);
+            return; // No open text editor
+        }
+        if (!editor.document.fileName.endsWith('.ts')) {
+            vscode.window.showInformationMessage(`Not a typescript document.`);
+            return;
+        }
+
+        const ast = this._getWindowAst(editor);
+        const cls = <ts.ClassDeclaration | null>this._getClassNode(ast);
+        if (!cls) {
+            return;
+        }
+        if (ast) {
+            let elemList = this._buildElementList(ast);
+            if (elemList.length === 0) {
+                vscode.window.showInformationMessage(`Could not find any template elements with an id.`);
+                return;
+            }
+            // find the name of the class to form the interface name
+            const clsIdNode = this._walkUntil(cls, ts.SyntaxKind.Identifier, '');
+            const interfaceName: string = clsIdNode ? 'I$' + clsIdNode.getText() : 'I$';
+            // find the interface if it's already present
+            const existingIntfDec = this._walkUntil(ast, ts.SyntaxKind.InterfaceDeclaration, interfaceName);
+            // find the existing property declaration if it's already present
+            const existingProperty = this._walkUntil(cls, ts.SyntaxKind.PropertyDeclaration, '$!:');
+            // if there is no existing property, we need to know where
+            // to insert the new property, so get the template getter
+            const templateGetter = this._walkUntil(cls, ts.SyntaxKind.GetAccessor, 'static get template');
+            if (!existingProperty && !templateGetter) {
+                return;
+            }
+            // insertion points
+            const piPoint: IpropPosition = existingProperty ? { start: existingProperty.pos, end: existingProperty.end } :
+                templateGetter ? { start: templateGetter.end, end: templateGetter.end } : { start: 0, end: 0 };
+            piPoint.editorPosition = this._getVscodeRange(editor, piPoint.start, piPoint.end);
+            const iiPoint: IpropPosition = existingIntfDec ? { start: existingIntfDec.pos, end: existingIntfDec.end } :
+                { start: cls.pos, end: cls.pos };
+            iiPoint.editorPosition = this._getVscodeRange(editor, iiPoint.start, iiPoint.end);
+            // form the interface declaration
+            const intfDecString: string = this.lineEnding + "interface " + interfaceName + " {" +
+                elemList.reduce((pval: string, nextVal: elex.InamedElements) => {
+                    return pval + this.lineEnding + this.tabValue + nextVal.id + ': ' + nextVal.className + ';';
+                }, "") + this.lineEnding + '}';
+            // form the property dec string
+            const propDecString: string = this.lineEnding + this.tabValue + '$!: ' + interfaceName + ';';
+            // perform updates
+            editor.edit((editBuilder) => {
+                if (piPoint.editorPosition) {
+                    if (piPoint.start !== piPoint.end) {
+                        editBuilder.replace(piPoint.editorPosition, propDecString);
+                    } else {
+                        editBuilder.insert(piPoint.editorPosition.start, propDecString);
+                    }
+                }
+                if (iiPoint.editorPosition){
+                    if (iiPoint.start !== iiPoint.end){
+                        editBuilder.replace(iiPoint.editorPosition, intfDecString);
+                    } else {
+                        editBuilder.insert(iiPoint.editorPosition.start, intfDecString);
+                    }
+                }
+            });
+            vscode.window.showInformationMessage(`Updated the $ property with ${elemList.length} elements.`);
         }
     }
 
