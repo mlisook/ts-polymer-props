@@ -2,7 +2,7 @@
     "name": "polymertsprops",
     "displayName": "Polymer Typescript Properties",
     "description": "Insert Typescript properties matching Polymer static get properties",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publisher": "mlisook",
     "engines": {
         "vscode": "^1.25.0"
@@ -10,6 +10,10 @@
     "categories": [
         "Other"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mlisook/ts-polymer-props.git"
+    },
     "activationEvents": [
         "onCommand:extension.updatePolymerProps",
         "onCommand:extension.updateTsProps",

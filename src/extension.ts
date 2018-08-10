@@ -230,6 +230,7 @@ export class PolymerTsProps {
             iiPoint.editorPosition = this._getVscodeRange(editor, iiPoint.start, iiPoint.end);
             // form the interface declaration
             const intfDecString: string = this.lineEnding + "interface " + interfaceName + " {" +
+                this.lineEnding + this.tabValue + '[index: string]: Element;' +
                 elemList.reduce((pval: string, nextVal: elex.InamedElements) => {
                     return pval + this.lineEnding + this.tabValue + nextVal.id + ': ' + nextVal.className + ';';
                 }, "") + this.lineEnding + '}';
